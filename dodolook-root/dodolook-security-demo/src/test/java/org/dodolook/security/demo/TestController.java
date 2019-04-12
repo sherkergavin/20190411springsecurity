@@ -1,46 +1,81 @@
 package org.dodolook.security.demo;
 
-import org.junit.Before;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@AutoConfigureMockMvc
 public class TestController {
 
 	
 	@Autowired
-	private WebApplicationContext  wac;
-	
-	private MockMvc mockMvc;
-	
-	
-	@Before
-	public void setup() {
+	private MockMvc mvc;
+
+
+
+
+	@Test
+	public void exampleTest() throws Exception {
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+			
+		map.set("username", "hahahah");
+		map.set("age", "133");
+		map.set("password","99999");
 		
-		System.out.println("111111111111111");
-		
-		mockMvc = MockMvcBuilders.standaloneSetup(wac).build();
-		
+		 ResultActions result = this.mvc.perform(get("/user").params(map).contentType(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(3));
+		 
+		 System.out.println(result.andReturn().getResponse().getContentAsString());
+		 
+		 
 	}
+
 	
 	@Test
-	public void whenQuerySuccess() throws Exception {
+	public void whenGenInfoSuccess() throws Exception{
 		
-		mockMvc.perform(MockMvcRequestBuilders.get("/user")
-											.contentType(MediaType.APPLICATION_JSON_UTF8))
-											.andExpect(MockMvcResultMatchers.status().isOk())
-											.andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(3));
+		 ResultActions result = mvc.perform(get("/u/1").contentType(MediaType.APPLICATION_JSON_UTF8))
+								.andExpect(status().isOk())
+								.andExpect(jsonPath("$.name").value("gavin"));
+		
+		 System.out.println(result.andReturn().getResponse().getContentAsString());
 	}
+	
+	
+	@Test
+	public void whenCreateSuccess() throws Exception{
+		
+		 String content ="{\"name\":\"tom\",\"age\":\"55\",\"password\":\"889988\"}";
+		
+		 ResultActions result = mvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON_UTF8).content(content))
+								.andExpect(status().isOk());
+								
+		
+		 System.out.println(result.andReturn().getResponse().getContentAsString());
+	}
+	
+	
+	
+	
+	
+
 	
 	
 }
